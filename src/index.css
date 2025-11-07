@@ -114,8 +114,35 @@
   * {
     @apply border-border outline-ring/50;
   }
+
+  html {
+    @apply scroll-smooth;
+  }
+
   body {
     @apply bg-background text-foreground font-poppins;
+  }
+
+  /* Responsif font dan padding */
+  @media (max-width: 640px) {
+    body {
+      font-size: 0.9rem;
+      padding: 0 0.5rem;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 1024px) {
+    body {
+      font-size: 1rem;
+      padding: 0 1rem;
+    }
+  }
+
+  @media (min-width: 1025px) {
+    body {
+      font-size: 1.1rem;
+      padding: 0 2rem;
+    }
   }
 }
 
@@ -137,4 +164,21 @@
   background-color: white;
   width: 24px;
   border-radius: 9999px;
+}
+
+/* Responsif untuk pagination Swiper */
+@media (max-width: 640px) {
+  .swiper-pagination {
+    bottom: 6px !important;
+  }
+
+  .custom-bullet {
+    width: 8px;
+    height: 8px;
+    margin: 0 4px !important;
+  }
+
+  .custom-bullet-active {
+    width: 16px;
+  }
 }
