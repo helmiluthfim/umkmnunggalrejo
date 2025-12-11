@@ -22,13 +22,16 @@ function Products({ products }) {
             key={item.id}
             className="border w-full border-gray-600 rounded-lg shadow-md shadow-gray-600 hover:shadow-xl transition bg-white p-4"
           >
-            <Link
-              to={`/category/${item.category
+            {/* <Link
+              to={`/category/${(item.category || "")
                 .toLowerCase()
-                .replace(/\s+/g, "-")}/${item.name
+                .replace(/\s+/g, "-")}/${(item.name || "")
                 .toLowerCase()
                 .replace(/\s+/g, "-")}`}
               className="flex flex-col gap-2"
+            > */}
+            <Link
+              to={`/${item.kategori.toLowerCase()}/${item.toko.toLowerCase().replace(/\s+/g, "-")}/${item.name.toLowerCase().replace(/\s+/g, "-")}`}
             >
               <img
                 src={item.imgUrl}

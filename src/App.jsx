@@ -20,7 +20,8 @@ function App() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/" element={<Navigate to="/category/all" replace />} />
         <Route path="/category/:slug" element={<FilterCategory />} />
-        <Route path="/category/:category/:slug" element={<ProductDetail />} />
+        {/* <Route path="/category/:category/:slug" element={<ProductDetail />} /> */}
+        <Route path="/:category/:toko/:name" element={<ProductDetail/>} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
 

@@ -10,9 +10,9 @@ function SearchPage() {
   // Filter produk berdasarkan kata kunci
   const filteredProducts = products.filter(
     (item) =>
-      item.name.toLowerCase().includes(query) ||
-      item.category.toLowerCase().includes(query) ||
-      item.toko.toLowerCase().includes(query),
+      (item.name || "").toLowerCase().includes(query) ||
+      (item.category || "").toLowerCase().includes(query) ||
+      (item.toko || "").toLowerCase().includes(query),
   );
 
   return (
