@@ -14,10 +14,10 @@ const firebaseConfig = {
   storageBucket: "nunggalrejo-db.firebasestorage.app",
   messagingSenderId: "206361793398",
   appId: "1:206361793398:web:150193cf162ba1e8046057",
-  measurementId: "G-H534GKNYKW"
+  measurementId: "G-H534GKNYKW",
 };
 
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app)
+export const db = getFirestore(app);
 export const analytics = getAnalytics(app);

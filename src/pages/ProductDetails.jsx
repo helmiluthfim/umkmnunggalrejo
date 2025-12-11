@@ -18,7 +18,7 @@ function ProductDetail() {
   const product = products.find(
     (p) =>
       p.category.toLowerCase().replace(/\s+/g, "-") === category &&
-      p.name.toLowerCase().replace(/\s+/g, "-") === slug
+      p.name.toLowerCase().replace(/\s+/g, "-") === slug,
   );
 
   if (!product) {

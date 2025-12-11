@@ -8,5 +8,5 @@ import Footer from "./components/Footer";
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <App />
-  </BrowserRouter>
+  </BrowserRouter>,
 );

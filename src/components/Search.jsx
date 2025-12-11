@@ -12,7 +12,7 @@ function SearchPage() {
     (item) =>
       item.name.toLowerCase().includes(query) ||
       item.category.toLowerCase().includes(query) ||
-      item.toko.toLowerCase().includes(query)
+      item.toko.toLowerCase().includes(query),
   );
 
   return (
