@@ -168,15 +168,16 @@ export default function ProductDetail() {
         const querySnapshot = await getDocs(q)
         if (!querySnapshot.empty) {
           setProduct(querySnapshot.docs[0].data());
+          setCount(querySnapshot.docs[0].data().minBuy)
         } else {
           setProduct(null);
+          setCount(0)
         }
       } catch(err) {
         console.error(err.message)
       }
     }
     fetchData()
-    setCount(product.minBuy)
   }, [])
   
   return(
@@ -233,7 +234,7 @@ export default function ProductDetail() {
             <p className="mb-2">Jumlah</p>
             <div className="flex items-center gap-4 border rounded-md px-2 py-1 w-fit">
               <button
-                onClick={() => handlerCountSum("decrement", product.minBuy)}
+                onClick={() => handlerCountSum("decrement", count)}
                 disabled={count === 0}
                 className={`w-6 h-6 flex items-center justify-center rounded-md ${
                   count === 0
