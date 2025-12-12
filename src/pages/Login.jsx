@@ -1,9 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Link } from "react-router-dom";
 
+import { db } from "../firebase";
+import { getDoc, getDocs, collection, query, where } from "firebase/firestore";
+
 function Login() {
+
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+
+  const handleSubmit = async (e) => {
+    e.preventDefault
+    try {
+      const q = query(
+        collection(db, "users"),
+        where("username", "==", username),
+        where("password", "==", password)
+      )
+    } catch(err) {
+      console.error(err.message)
+    }
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
       <div className="bg-white shadow-lg rounded-2xl w-full max-w-sm p-8">
@@ -17,12 +37,13 @@ function Login() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Email
+              Username
             </Label>
             <Input
-              type="email"
+              onChange={(e) => setUsername(e.target.value)}
+              type="text"
               id="email"
-              placeholder="Masukkan email kamu"
+              placeholder="Masukkan username kamu"
               className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#773FF9]"
             />
           </div>
@@ -35,6 +56,7 @@ function Login() {
               Kata Sandi
             </Label>
             <Input
+              onChange={(e) => setPassword(e.target.value)}
               type="password"
               id="password"
               placeholder="Masukkan kata sandi"
