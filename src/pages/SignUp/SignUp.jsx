@@ -1,14 +1,21 @@
-import React from "react";
-import { Label } from "../components/ui/label";
-import { Input } from "../components/ui/input";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { db } from "../../firebase";
+import { getDoc, doc, collection, addDoc } from "firebase/firestore";
 
-function Login() {
-  return (
+import { Label } from "../../components/ui/label";
+import { Input } from "../../components/ui/input";
+
+export default function SignUp() {
+
+  const [email, setEmail] = useState("")
+  const [sandi, setSandi] = useState("")
+
+  return(
+    <>
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
       <div className="bg-white shadow-lg rounded-2xl w-full max-w-sm p-8">
         <h1 className="text-2xl font-bold text-center text-[#773FF9] mb-6">
-          Masuk Akun
+          Buat Akun
         </h1>
 
         <div className="space-y-5">
@@ -20,6 +27,7 @@ function Login() {
               Email
             </Label>
             <Input
+              onChange={(e) => setEmail(e.target.value)}
               type="email"
               id="email"
               placeholder="Masukkan email kamu"
@@ -35,6 +43,7 @@ function Login() {
               Kata Sandi
             </Label>
             <Input
+              onChange={(e) => setSandi(e.target.value)}
               type="password"
               id="password"
               placeholder="Masukkan kata sandi"
@@ -46,21 +55,18 @@ function Login() {
             type="button"
             className="w-full bg-[#773FF9] text-white font-semibold py-2 rounded-md hover:bg-[#5a2cbb] transition-all duration-300"
           >
-            Masuk
+            Buat Akun
           </button>
         </div>
 
         <p className="text-center text-sm text-gray-500 mt-6">
-          Belum punya akun?{" "}
-          <Link to="/signup">
-            <span className="text-[#773FF9] hover:text-[#5a2cbb] font-medium cursor-pointer">
-              Daftar Sekarang
-            </span>
-          </Link>
+          Sudah punya akun?{" "}
+          <span className="text-[#773FF9] hover:text-[#5a2cbb] font-medium cursor-pointer">
+            Masuk
+          </span>
         </p>
       </div>
     </div>
-  );
+    </>
+  )
 }
-
-export default Login;

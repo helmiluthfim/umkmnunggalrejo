@@ -8,6 +8,7 @@ import ProductDetail from "./pages/ProductDetails";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import SearchPage from "./components/Search";
+import SignUp from "./pages/SignUp/SignUp";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         {/* <Route path="/category/:category/:slug" element={<ProductDetail />} /> */}
         <Route path="/:category/:toko/:name" element={<ProductDetail/>} />
         <Route path="*" element={<NotFoundPage />} />
+        <Route path="/signup" element={<SignUp/>} />
       </Routes>
 
       <Footer />
