@@ -7,8 +7,24 @@ import { Input } from "../../components/ui/input";
 
 export default function SignUp() {
 
-  const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
   const [sandi, setSandi] = useState("")
+  const [toko, setToko] = useState("")
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const docRef = collection(db, "users")
+      await addDoc(docRef, {
+        username,
+        password: sandi,
+        toko
+      })
+      window.location.reload()
+    } catch (err) {
+      console.error(err.message)
+    }
+  }
 
   return(
     <>
@@ -18,21 +34,38 @@ export default function SignUp() {
           Buat Akun
         </h1>
 
-        <div className="space-y-5">
-          <div>
-            <Label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </Label>
-            <Input
-              onChange={(e) => setEmail(e.target.value)}
-              type="email"
-              id="email"
-              placeholder="Masukkan email kamu"
-              className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#773FF9]"
-            />
+        <form className="space-y-5" onSubmit={handleSubmit}>
+          <div style={{display: 'flex', gap: "16px"}}>
+            <div>
+              <Label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Username
+              </Label>
+              <Input
+                onChange={(e) => setUsername(e.target.value)}
+                type="text"
+                id="username"
+                placeholder="Username"
+                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#773FF9]"
+              />
+            </div>
+            <div>
+              <Label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Nama Toko
+              </Label>
+              <Input
+                onChange={(e) => setToko(e.target.value)}
+                type="text"
+                id="toko"
+                placeholder="Nama Toko"
+                className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-[#773FF9]"
+              />
+            </div>
           </div>
 
           <div>
@@ -52,12 +85,12 @@ export default function SignUp() {
           </div>
 
           <button
-            type="button"
+            type="submit"
             className="w-full bg-[#773FF9] text-white font-semibold py-2 rounded-md hover:bg-[#5a2cbb] transition-all duration-300"
           >
             Buat Akun
           </button>
-        </div>
+        </form>
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Sudah punya akun?{" "}
