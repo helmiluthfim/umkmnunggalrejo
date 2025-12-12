@@ -1,28 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { db } from "../firebase";
-import { getDoc, getDocs, collection, query, where } from "firebase/firestore";
+import { getDoc, getDocs, collection, query, where, limit } from "firebase/firestore";
+import { userStore } from "../state/state";
 
 function Login() {
 
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  
+  const navigate = useNavigate()
+
+  const user = userStore((state) => state.currentUser)
+  const setCurrentUser = userStore((state) => state.setCurrentUser)
 
   const handleSubmit = async (e) => {
-    e.preventDefault
+    e.preventDefault()
     try {
       const q = query(
         collection(db, "users"),
         where("username", "==", username),
-        where("password", "==", password)
+        where("password", "==", password),
+        limit(1)
       )
+      const querySnapshot = await getDocs(q)
+      if (!querySnapshot.empty) {
+        const doc = querySnapshot.docs[0]
+        const data = { id: doc.id, ...doc.data() }
+        setCurrentUser(data)
+        alert(data.id)
+        navigate("/")
+      } else {
+        alert("user ga ada")
+      }
     } catch(err) {
-      console.error(err.message)
+      alert(`error ${err.message}`);
     }
   }
+
+  useEffect(() => {
+    if(user) {
+      navigate("/")
+    }
+  })
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -31,7 +54,7 @@ function Login() {
           Masuk Akun
         </h1>
 
-        <div className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <Label
               htmlFor="email"
@@ -65,12 +88,12 @@ function Login() {
           </div>
 
           <button
-            type="button"
+            type="submit"
             className="w-full bg-[#773FF9] text-white font-semibold py-2 rounded-md hover:bg-[#5a2cbb] transition-all duration-300"
           >
             Masuk
           </button>
-        </div>
+        </form>
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Belum punya akun?{" "}

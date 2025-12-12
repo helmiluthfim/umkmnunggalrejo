@@ -12,8 +12,7 @@ const userStore = create((set) => ({
   setCurrentUser: (user) => {
     localStorage.setItem("user", JSON.stringify(user))
     set({
-      currentUser: username,
-      toko: toko
+      currentUser: user,
     })
   },
 
