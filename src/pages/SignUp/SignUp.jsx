@@ -4,12 +4,15 @@ import { getDoc, doc, collection, addDoc } from "firebase/firestore";
 
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
+import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
 
   const [username, setUsername] = useState("")
   const [sandi, setSandi] = useState("")
   const [toko, setToko] = useState("")
+  
+  const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -20,7 +23,7 @@ export default function SignUp() {
         password: sandi,
         toko
       })
-      window.location.reload()
+      navigate("/login")
     } catch (err) {
       console.error(err.message)
     }
