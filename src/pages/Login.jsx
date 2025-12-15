@@ -4,48 +4,54 @@ import { Input } from "../components/ui/input";
 import { Link, useNavigate } from "react-router-dom";
 
 import { db } from "../firebase";
-import { getDoc, getDocs, collection, query, where, limit } from "firebase/firestore";
+import {
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+  limit,
+} from "firebase/firestore";
 import { userStore } from "../state/state";
 
 function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const user = userStore((state) => state.currentUser)
-  const setCurrentUser = userStore((state) => state.setCurrentUser)
+  const user = userStore((state) => state.currentUser);
+  const setCurrentUser = userStore((state) => state.setCurrentUser);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       const q = query(
         collection(db, "users"),
         where("username", "==", username),
         where("password", "==", password),
         limit(1)
-      )
-      const querySnapshot = await getDocs(q)
+      );
+      const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
-        const doc = querySnapshot.docs[0]
-        const data = { id: doc.id, ...doc.data() }
-        setCurrentUser(data)
-        alert(data.id)
-        navigate("/")
+        const doc = querySnapshot.docs[0];
+        const data = { id: doc.id, ...doc.data() };
+        setCurrentUser(data);
+        alert(data.id);
+        navigate("/admin");
       } else {
-        alert("user ga ada")
+        alert("user ga ada");
       }
-    } catch(err) {
+    } catch (err) {
       alert(`error ${err.message}`);
     }
-  }
+  };
 
   useEffect(() => {
-    if(user) {
-      navigate("/")
+    if (user) {
+      navigate("/");
     }
-  })
+  });
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
