@@ -17,7 +17,7 @@ export default function EditProfil() {
 
         {/* INFO UPLOAD */}
         <div className="space-y-1">
-          <button className="border border-gray-300 px-4 py-2 rounded-xl hover:bg-gray-100 transition">
+          <button className="border border-[#773FF9] px-4 py-2 rounded-xl hover:bg-gray-100 transition">
             Upload Foto Baru
           </button>
 
@@ -31,6 +31,37 @@ export default function EditProfil() {
           </p>
         </div>
       </div>
+
+      <div className="flex gap-4 pt-4">
+        <div className="flex flex-col gap-2">
+          <label htmlFor="Nama">Nama</label>
+          <input
+            type="text"
+            placeholder="Masukan Nama"
+            className="border border-[#773FF9] rounded-sm p-1 w-32"
+          ></input>
+        </div>
+        <div className="flex flex-col gap-2">
+          <label htmlFor="No Telpon">No Telpon</label>
+          <input
+            type="text"
+            placeholder="Masukan No Telp"
+            className="border border-[#773FF9] rounded-sm p-1 w-32"
+          ></input>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1 mt-4">
+        <label htmlFor="alamat">Alamat</label>
+        <textarea
+          id="alamat"
+          placeholder="Masukkan Alamat"
+          rows={3}
+          className="border border-[#773FF9] rounded-md px-3 py-2 resize-none focus:outline-none focus:ring focus:ring-black/20"
+        />
+      </div>
+      <button className="bg-[#773FF9] hover:bg-[#5a2cbb] duration-200 text-white mt-4 p-2 w-full rounded-sm">
+        Simpan
+      </button>
     </div>
   );
 }

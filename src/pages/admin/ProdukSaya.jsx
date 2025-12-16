@@ -4,6 +4,7 @@ import { db } from "../../firebase";
 import {
   getDocs,
   deleteDoc,
+  updateDoc, // ✅ Tambahkan updateDoc
   doc,
   query,
   where,
@@ -15,7 +16,10 @@ export default function ProdukSaya() {
   const user = userStore((state) => state.currentUser);
   const [product, setProduct] = useState([]);
   const [addProduct, setAddProduct] = useState(false);
-  const [editProduct, setEditProduct] = useState(false);
+
+  // ✅ STATE UNTUK EDIT INLINE
+  const [editingId, setEditingId] = useState(null); // ID produk yang sedang diedit
+  const [editData, setEditData] = useState({}); // Data sementara saat mengetik
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,10 +41,16 @@ export default function ProdukSaya() {
     fetchData();
   }, [user.toko]);
 
-  const truncateWords = (text, maxWords = 10) =>
-    text.split(" ").slice(0, maxWords).join(" ") + "…";
+  const truncateWords = (text, maxWords = 10) => {
+    if (!text) return "";
+    return (
+      text.split(" ").slice(0, maxWords).join(" ") +
+      (text.split(" ").length > maxWords ? "…" : "")
+    );
+  };
 
   const handleDelete = async (id) => {
+    if (!window.confirm("Yakin ingin menghapus produk ini?")) return;
     try {
       await deleteDoc(doc(db, "product", id));
       setProduct((prev) => prev.filter((item) => item.id !== id));
@@ -49,22 +59,59 @@ export default function ProdukSaya() {
     }
   };
 
+  // ✅ FUNGSI MULAI EDIT
+  const handleEditClick = (item) => {
+    setEditingId(item.id);
+    setEditData(item); // Masukkan data item saat ini ke form sementara
+  };
+
+  // ✅ FUNGSI BATAL EDIT
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditData({});
+  };
+
+  // ✅ FUNGSI HANDLE PERUBAHAN INPUT
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // ✅ FUNGSI SIMPAN PERUBAHAN (UPDATE)
+  const handleSaveEdit = async (id) => {
+    try {
+      // Update ke Firebase
+      const docRef = doc(db, "product", id);
+      await updateDoc(docRef, {
+        name: editData.name,
+        description: editData.description,
+        price: editData.price,
+      });
+
+      // Update State Lokal (agar UI berubah tanpa refresh)
+      setProduct((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, ...editData } : item))
+      );
+
+      setEditingId(null); // Keluar mode edit
+    } catch (err) {
+      console.error("Gagal update:", err.message);
+      alert("Gagal mengupdate produk");
+    }
+  };
+
   return (
     <>
-      {/* ✅ PERBAIKAN 1: Mengirim props setAddProduct ke PopUp */}
       {addProduct && <PopUp user={user} setAddProduct={setAddProduct} />}
 
       <div
         className={`bg-white w-full rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-opacity ${
           addProduct ? "opacity-50" : "opacity-100"
         }`}
-        // Opsional: Klik background untuk menutup popup
-        onClick={() => addProduct && setAddProduct(false)}
       >
         {/* Header */}
         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-gray-800">Produk Saya</h2>
-
           <button
             onClick={() => setAddProduct(true)}
             className="bg-violet-600 hover:bg-violet-700 transition text-white text-sm px-4 py-2 rounded-md"
@@ -75,55 +122,140 @@ export default function ProdukSaya() {
 
         {/* Product List */}
         <div className="flex flex-wrap gap-4 p-4">
-          {product.map((item) => (
-            <div
-              key={item.id}
-              className="w-full border border-gray-200 rounded-2xl p-6"
-            >
-              <div className="flex flex-col gap-4 lg:flex-row">
-                <img
-                  src={item.imgUrl}
-                  alt={item.name}
-                  className="w-full max-h-40 object-cover rounded-xl shadow-md"
-                />
+          {product.map((item) => {
+            const isEditing = editingId === item.id;
 
-                <div className="flex flex-col gap-2">
-                  <h3 className="font-bold text-gray-800">{item.name}</h3>
+            return (
+              <div
+                key={item.id}
+                className={`w-full border rounded-2xl p-6 transition-all ${
+                  isEditing
+                    ? "border-violet-500 bg-violet-50"
+                    : "border-gray-200"
+                }`}
+              >
+                <div className="flex flex-col gap-4 lg:flex-row">
+                  {/* Gambar (Tidak diedit inline agar simpel) */}
+                  <img
+                    src={item.imgUrl}
+                    alt={item.name}
+                    className="w-full lg:w-40 h-40 object-cover rounded-xl shadow-md shrink-0"
+                  />
 
-                  <p className="text-gray-700">
-                    {truncateWords(item.description, 10)}
-                  </p>
+                  {/* KONTEN: Toggle antara View Mode vs Edit Mode */}
+                  <div className="flex flex-col gap-2 w-full">
+                    {isEditing ? (
+                      /* --- MODE EDIT --- */
+                      <div className="flex flex-col gap-3">
+                        <div>
+                          <label className="text-xs font-bold text-gray-500">
+                            Nama Produk
+                          </label>
+                          <input
+                            type="text"
+                            name="name"
+                            value={editData.name}
+                            onChange={handleEditChange}
+                            className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-violet-500"
+                          />
+                        </div>
 
-                  <p className="text-violet-600 font-semibold">
-                    Rp {item.price}
-                  </p>
+                        <div>
+                          <label className="text-xs font-bold text-gray-500">
+                            Deskripsi
+                          </label>
+                          <textarea
+                            name="description"
+                            rows={2}
+                            value={editData.description}
+                            onChange={handleEditChange}
+                            className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-violet-500 text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-bold text-gray-500">
+                            Harga (Rp)
+                          </label>
+                          <input
+                            type="number"
+                            name="price"
+                            value={editData.price}
+                            onChange={handleEditChange}
+                            className="w-full border border-gray-300 rounded px-2 py-1 focus:outline-violet-500"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      /* --- MODE VIEW (TAMPILAN BIASA) --- */
+                      <>
+                        <h3 className="font-bold text-gray-800 text-lg">
+                          {item.name}
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                          {truncateWords(item.description, 15)}
+                        </p>
+                        <p className="text-violet-600 font-bold text-lg">
+                          Rp {parseInt(item.price).toLocaleString("id-ID")}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* TOMBOL AKSI */}
+                <div className="flex gap-3 pt-4 mt-2 border-t border-gray-100">
+                  {isEditing ? (
+                    /* Tombol saat Mode Edit */
+                    <>
+                      <button
+                        onClick={() => handleSaveEdit(item.id)}
+                        className="bg-green-600 text-white px-4 py-1.5 rounded-md hover:bg-green-700 text-sm transition"
+                      >
+                        Simpan
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="bg-gray-400 text-white px-4 py-1.5 rounded-md hover:bg-gray-500 text-sm transition"
+                      >
+                        Batal
+                      </button>
+                    </>
+                  ) : (
+                    /* Tombol saat Mode Biasa */
+                    <>
+                      <button
+                        onClick={() => handleEditClick(item)}
+                        className="border border-violet-600 text-violet-600 rounded-md px-4 py-1.5 hover:bg-violet-600 hover:text-white transition text-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white transition rounded-md px-4 py-1.5 text-sm"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
-
-              <div className="flex flex-col gap-4 pt-4">
-                <button className="border border-violet-600 text-violet-600 rounded-md py-1 hover:bg-violet-600 hover:text-white transition">
-                  Edit
-                </button>
-
-                <button
-                  onClick={() => handleDelete(item.id)}
-                  className="bg-red-600 hover:bg-red-700 transition text-white rounded-md py-1"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </>
   );
 }
 
+// ... Bagian PopUp dan Input Component dibiarkan sama seperti kode asli ...
+// ... Copy bagian PopUp dan Component Input dari kode sebelumnya di sini ...
+
 //* ================= POPUP UPDATE ================= */
+// (Kode PopUp dan Input di bawah ini sama persis dengan kode Anda sebelumnya,
+//  saya sertakan agar tidak error saat di-copy paste)
 
 function PopUp({ user, setAddProduct }) {
-  // 1. Definisikan kategori sesuai permintaan (tanpa 'Semua')
   const categoryList = [
     "🍜 Makanan",
     "♻️ Daur Ulang",
@@ -207,8 +339,6 @@ function PopUp({ user, setAddProduct }) {
               value={form.price}
               onChange={handleChange}
             />
-
-            {/* 👇 BAGIAN DROPDOWN KATEGORI BARU 👇 */}
             <div>
               <label className="block text-sm font-medium mb-1">Kategori</label>
               <div className="relative">
@@ -223,10 +353,7 @@ function PopUp({ user, setAddProduct }) {
                     Pilih Kategori
                   </option>
                   {categoryList.map((item, index) => {
-                    // Kita hapus emoji agar yang masuk DB hanya teks (misal: "Makanan")
-                    // Agar cocok dengan logic filter: item.kategori === selectedCategory.replace(...)
                     const cleanValue = item.replace(/^\S+\s/, "");
-
                     return (
                       <option key={index} value={cleanValue}>
                         {item}
@@ -234,7 +361,6 @@ function PopUp({ user, setAddProduct }) {
                     );
                   })}
                 </select>
-                {/* Icon panah dropdown custom agar lebih rapi */}
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                   <svg
                     className="fill-current h-4 w-4"
@@ -246,7 +372,6 @@ function PopUp({ user, setAddProduct }) {
                 </div>
               </div>
             </div>
-            {/* 👆 END BAGIAN DROPDOWN 👆 */}
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -255,7 +380,7 @@ function PopUp({ user, setAddProduct }) {
               name="nomor"
               value={form.nomor}
               onChange={handleChange}
-              readOnly // Biasanya nomor otomatis dari user, jadi readOnly
+              readOnly
             />
             <Input
               label="Min. Beli"
@@ -283,7 +408,6 @@ function PopUp({ user, setAddProduct }) {
             />
           </div>
 
-          {/* ACTION BUTTON */}
           <div className="flex gap-3 pt-2">
             <button
               type="button"
@@ -292,7 +416,6 @@ function PopUp({ user, setAddProduct }) {
             >
               Cancel
             </button>
-
             <button
               disabled={loading}
               className="w-1/2 bg-black text-white py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50"
@@ -305,8 +428,6 @@ function PopUp({ user, setAddProduct }) {
     </div>
   );
 }
-
-/* ================= INPUT COMPONENT ================= */
 
 function Input({ label, ...props }) {
   return (
