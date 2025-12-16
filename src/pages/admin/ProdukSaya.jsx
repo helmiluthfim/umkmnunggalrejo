@@ -119,14 +119,22 @@ export default function ProdukSaya() {
   );
 }
 
-/* ================= POPUP ================= */
+//* ================= POPUP UPDATE ================= */
 
 function PopUp({ user, setAddProduct }) {
+  // 1. Definisikan kategori sesuai permintaan (tanpa 'Semua')
+  const categoryList = [
+    "🍜 Makanan",
+    "♻️ Daur Ulang",
+    "✨ Dekorasi",
+    "💎 Aksesoris",
+  ];
+
   const [form, setForm] = useState({
     name: "",
     desc: "",
     price: "",
-    category: "",
+    category: "", // Ini akan menyimpan value bersih (contoh: "Makanan")
     nomor: user.no,
     minBuy: "",
     kondisi: "",
@@ -156,7 +164,7 @@ function PopUp({ user, setAddProduct }) {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
       alert("Produk berhasil ditambahkan");
-      setAddProduct(false); // Tutup popup setelah sukses
+      setAddProduct(false);
     } catch (err) {
       alert(err.response?.data?.error || err.message);
     } finally {
@@ -165,10 +173,9 @@ function PopUp({ user, setAddProduct }) {
   };
 
   return (
-    // Tambahkan e.stopPropagation() agar klik di dalam form tidak menutup popup
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40">
       <div
-        className="bg-white rounded-2xl w-full max-w-2xl p-6 shadow-xl"
+        className="bg-white rounded-2xl w-full max-w-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <h1 className="text-xl font-semibold mb-4 text-center">
@@ -198,12 +205,46 @@ function PopUp({ user, setAddProduct }) {
               value={form.price}
               onChange={handleChange}
             />
-            <Input
-              label="Kategori"
-              name="category"
-              value={form.category}
-              onChange={handleChange}
-            />
+
+            {/* 👇 BAGIAN DROPDOWN KATEGORI BARU 👇 */}
+            <div>
+              <label className="block text-sm font-medium mb-1">Kategori</label>
+              <div className="relative">
+                <select
+                  name="category"
+                  value={form.category}
+                  onChange={handleChange}
+                  required
+                  className="w-full border rounded-lg p-2 appearance-none bg-white focus:outline-none focus:ring focus:ring-black/20"
+                >
+                  <option value="" disabled>
+                    Pilih Kategori
+                  </option>
+                  {categoryList.map((item, index) => {
+                    // Kita hapus emoji agar yang masuk DB hanya teks (misal: "Makanan")
+                    // Agar cocok dengan logic filter: item.kategori === selectedCategory.replace(...)
+                    const cleanValue = item.replace(/^\S+\s/, "");
+
+                    return (
+                      <option key={index} value={cleanValue}>
+                        {item}
+                      </option>
+                    );
+                  })}
+                </select>
+                {/* Icon panah dropdown custom agar lebih rapi */}
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                  <svg
+                    className="fill-current h-4 w-4"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            {/* 👆 END BAGIAN DROPDOWN 👆 */}
           </div>
 
           <div className="grid grid-cols-3 gap-4">
@@ -212,6 +253,7 @@ function PopUp({ user, setAddProduct }) {
               name="nomor"
               value={form.nomor}
               onChange={handleChange}
+              readOnly // Biasanya nomor otomatis dari user, jadi readOnly
             />
             <Input
               label="Min. Beli"
@@ -243,7 +285,6 @@ function PopUp({ user, setAddProduct }) {
           <div className="flex gap-3 pt-2">
             <button
               type="button"
-              // ✅ PERBAIKAN 2: Set state menjadi false
               onClick={() => setAddProduct(false)}
               className="w-1/2 border border-gray-300 py-2 rounded-lg hover:bg-gray-100 transition"
             >
