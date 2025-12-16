@@ -97,7 +97,6 @@ import { getDocs, collection, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
-
 import styles from "./filterCategory.module.css";
 import Products from "../pages/Products";
 
@@ -153,7 +152,7 @@ export default function FilterCategory() {
             ))}
           </div>
         </div>
-        <Products products={filtered}/>
+        <Products products={filtered} />
       </div>
     </>
   );

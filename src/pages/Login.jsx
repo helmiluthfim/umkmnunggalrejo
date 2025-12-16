@@ -30,7 +30,7 @@ function Login() {
         collection(db, "users"),
         where("username", "==", username),
         where("password", "==", password),
-        limit(1)
+        limit(1),
       );
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {

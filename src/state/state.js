@@ -10,17 +10,16 @@ const userStore = create((set) => ({
   toko: getUserFromSession()?.toko,
 
   setCurrentUser: (user) => {
-    localStorage.setItem("user", JSON.stringify(user))
+    localStorage.setItem("user", JSON.stringify(user));
     set({
       currentUser: user,
-    })
+    });
   },
 
   logout: () => {
     localStorage.removeItem("user");
     set({ currentUser: null, toko: null });
   },
+}));
 
-}))
-
-export { userStore }
+export { userStore };
