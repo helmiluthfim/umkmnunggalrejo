@@ -54,7 +54,7 @@ export default function ProdukSaya() {
 
   return (
     <>
-      {addProduct ? <PopUp /> : null}
+      {addProduct ? <PopUp user={user} /> : null}
       <div
         className={styles.container}
         style={{ opacity: addProduct ? 0.5 : 1 }}
@@ -105,19 +105,17 @@ export default function ProdukSaya() {
   );
 }
 
-function PopUp() {
+function PopUp({user}) {
   const [form, setForm] = useState({
     name: "",
     desc: "",
     price: "",
     category: "",
-    nomor: "",
+    nomor: user.no,
     minBuy: "",
     kondisi: "",
   });
   const [image, setImage] = useState(null);
-
-  const user = userStore((state) => state.currentUser);
 
   const [loading, setLoading] = useState(false);
 
@@ -140,7 +138,7 @@ function PopUp() {
     try {
       setLoading(true);
       await axios.post(
-        "http://localhost:5000/api/adis/nunggalrejo/products",
+        "http://localhost:5000/adis/nunggalrejo/products",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } },
       );
@@ -155,7 +153,7 @@ function PopUp() {
 
   return (
     <>
-      <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-white border border-gray-400 rounded-2xl w-1/2 h-1/2 p-4 shadow-[0px_4px_10px_rgba(0,0,0,0.5)] flex flex-col gap-4 max-w-2xl mx-auto">
         <h1 className="text-xl font-semibold mb-4">Tambah Produk</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
