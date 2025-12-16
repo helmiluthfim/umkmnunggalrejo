@@ -267,9 +267,9 @@ function PopUp({ user, setAddProduct }) {
     name: "",
     description: "",
     price: "",
-    category: "",
+    kategori: "",
     nomor: user.no,
-    minBuy: "",
+    minBuy: 0,
     kondisi: "",
     toko: user.toko,
   });
@@ -293,7 +293,7 @@ function PopUp({ user, setAddProduct }) {
     try {
       setLoading(true);
       await axios.post(
-        "https://adis-main-backend.vercel.app/adis/nunggalrejo/product",
+        "http://localhost:5000/adis/nunggalrejo/product",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
@@ -342,16 +342,19 @@ function PopUp({ user, setAddProduct }) {
             <div>
               <label className="block text-sm font-medium mb-1">Kategori</label>
               <div className="relative">
-                <select
-                  name="category"
-                  value={form.category}
-                  onChange={handleChange}
+               <select
+                  name="kategori"
+                  value={form.kategori}
+                  onChange={(e) =>
+                    setForm({ ...form, kategori: e.target.value })
+                  }
                   required
                   className="w-full border rounded-lg p-2 appearance-none bg-white focus:outline-none focus:ring focus:ring-black/20"
                 >
                   <option value="" disabled>
                     Pilih Kategori
                   </option>
+
                   {categoryList.map((item, index) => {
                     const cleanValue = item.replace(/^\S+\s/, "");
                     return (
@@ -378,6 +381,7 @@ function PopUp({ user, setAddProduct }) {
             <Input
               label="Nomor"
               name="nomor"
+              disabled={true}
               value={form.nomor}
               onChange={handleChange}
               readOnly
