@@ -132,12 +132,13 @@ function PopUp({ user, setAddProduct }) {
 
   const [form, setForm] = useState({
     name: "",
-    desc: "",
+    description: "",
     price: "",
-    category: "", // Ini akan menyimpan value bersih (contoh: "Makanan")
+    category: "",
     nomor: user.no,
     minBuy: "",
     kondisi: "",
+    toko: user.toko,
   });
 
   const [image, setImage] = useState(null);
@@ -159,11 +160,11 @@ function PopUp({ user, setAddProduct }) {
     try {
       setLoading(true);
       await axios.post(
-        "http://localhost:5000/adis/nunggalrejo/products",
+        "https://adis-main-backend.vercel.app/adis/nunggalrejo/product",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-      alert("Produk berhasil ditambahkan");
+      alert(`Produk berhasil ditambahkan`);
       setAddProduct(false);
     } catch (err) {
       alert(err.response?.data?.error || err.message);
@@ -192,8 +193,8 @@ function PopUp({ user, setAddProduct }) {
 
           <Textarea
             label="Deskripsi"
-            name="desc"
-            value={form.desc}
+            name="description"
+            value={form.description}
             onChange={handleChange}
           />
 
