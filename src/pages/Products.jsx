@@ -22,16 +22,6 @@ function Products({ products = [] }) {
     <>
       <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 px-4 md:px-0">
         {products
-          // filter data agar tidak crash
-          .filter(
-            (item) =>
-              item &&
-              item.kategori &&
-              item.toko &&
-              item.name &&
-              item.imgUrl &&
-              item.price !== undefined
-          )
           .slice(0, viewMore)
           .map((item) => (
             <div
