@@ -15,6 +15,7 @@ export default function ProdukSaya() {
   const user = userStore((state) => state.currentUser);
   const [product, setProduct] = useState([]);
   const [addProduct, setAddProduct] = useState(false);
+  const [editProduct, setEditProduct] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
