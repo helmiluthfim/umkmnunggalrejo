@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import slugify from "slugify";
 
 function Products({ products = [] }) {
   const INITIAL_COUNT = 8;
@@ -27,9 +28,7 @@ function Products({ products = [] }) {
             className="border w-full border-gray-600 rounded-lg shadow-md shadow-gray-600 hover:shadow-xl transition bg-white p-4"
           >
             <Link
-              to={`/${slugify(item.kategori)}/${slugify(
-                item.toko
-              )}/${slugify(item.name)}`}
+              to={`${item.slug}`}
             >
               <img
                 src={item.imgUrl}

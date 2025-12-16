@@ -11,23 +11,17 @@ import {
   where,
 } from "firebase/firestore";
 
-function slugToTitle(slug) {
-  return slug
-    .split("-")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
 export default function ProductDetail() {
   const [product, setProduct] = useState([]);
   const [message, setMessage] = useState("");
-  const { category, toko, name } = useParams();
+   
   const [count, setCount] = useState(0);
+  const { category, toko, name } = useParams();
 
   function handlerCountSum(action, min) {
     if (action === "increment") {
       setCount(count + 1);
-    } else if (action === "decrement" && count > min) {
+    } else if (action == "decrement" && count > min) {
       setCount(count - 1);
     }
   }
@@ -37,13 +31,12 @@ export default function ProductDetail() {
       try {
         const q = query(
           collection(db, "product"),
-          where("toko", "==", slugToTitle(toko)),
-          where("name", "==", slugToTitle(name)),
+          where("slug", "==", `/${category}/${toko}/${name}`)
         );
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
           setProduct(querySnapshot.docs[0].data());
-          setCount(querySnapshot.docs[0].data().minBuy);
+          setCount(Number(querySnapshot.docs[0].data().minBuy));
         } else {
           setProduct(null);
           setCount(0);
@@ -109,7 +102,7 @@ export default function ProductDetail() {
               <p className="mb-2">Jumlah</p>
               <div className="flex items-center gap-4 border rounded-md px-2 py-1 w-fit">
                 <button
-                  onClick={() => handlerCountSum("decrement", count)}
+                  onClick={() => handlerCountSum("decrement", product.minBuy)}
                   disabled={count === 0}
                   className={`w-6 h-6 flex items-center justify-center rounded-md ${
                     count === 0
