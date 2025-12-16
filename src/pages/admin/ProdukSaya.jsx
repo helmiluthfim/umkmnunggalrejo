@@ -1,19 +1,15 @@
-import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { db } from "../../firebase";
 import {
-  getDoc,
   getDocs,
-  addDoc,
   deleteDoc,
+  doc,
   query,
   where,
   collection,
 } from "firebase/firestore";
-
 import { userStore } from "../../state/state";
-import styles from "./produksaya.module.css";
 
 export default function ProdukSaya() {
   const user = userStore((state) => state.currentUser);
@@ -25,10 +21,10 @@ export default function ProdukSaya() {
       try {
         const q = query(
           collection(db, "product"),
-          where("toko", "==", user.toko),
+          where("toko", "==", user.toko)
         );
-        const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map((doc) => ({
+        const snapshot = await getDocs(q);
+        const data = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
@@ -38,15 +34,15 @@ export default function ProdukSaya() {
       }
     };
     fetchData();
-  });
+  }, [user.toko]);
 
-  const truncateWords = (text, maxWords = 10) => {
-    return text.split(" ").slice(0, maxWords).join(" ") + "…";
-  };
+  const truncateWords = (text, maxWords = 10) =>
+    text.split(" ").slice(0, maxWords).join(" ") + "…";
 
   const handleDelete = async (id) => {
     try {
       await deleteDoc(doc(db, "product", id));
+      setProduct((prev) => prev.filter((item) => item.id !== id));
     } catch (err) {
       console.error(err.message);
     }
@@ -54,45 +50,63 @@ export default function ProdukSaya() {
 
   return (
     <>
-      {addProduct ? <PopUp user={user} /> : null}
-      <div
-        className={styles.container}
-        style={{ opacity: addProduct ? 0.5 : 1 }}
-        onClick={() => (addProduct ? setAddProduct(false) : null)}
-      >
-        <div className={styles.header}>
-          <h2 className={styles.title}>Produk Saya</h2>
+      {/* ✅ PERBAIKAN 1: Mengirim props setAddProduct ke PopUp */}
+      {addProduct && <PopUp user={user} setAddProduct={setAddProduct} />}
 
-          <div className={styles.link} onClick={() => setAddProduct(true)}>
-            <p className={styles.newProductBtn}>Produk Baru</p>
-          </div>
+      <div
+        className={`bg-white w-full rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-opacity ${
+          addProduct ? "opacity-50" : "opacity-100"
+        }`}
+        // Opsional: Klik background untuk menutup popup
+        onClick={() => addProduct && setAddProduct(false)}
+      >
+        {/* Header */}
+        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+          <h2 className="text-xl font-semibold text-gray-800">Produk Saya</h2>
+
+          <button
+            onClick={() => setAddProduct(true)}
+            className="bg-violet-600 hover:bg-violet-700 transition text-white text-sm px-4 py-2 rounded-md"
+          >
+            Produk Baru
+          </button>
         </div>
 
-        <div className={styles.productContainer}>
+        {/* Product List */}
+        <div className="flex flex-wrap gap-4 p-4">
           {product.map((item) => (
-            <div key={item.id} className={styles.card}>
-              <div className={styles.cardContent}>
+            <div
+              key={item.id}
+              className="w-full border border-gray-200 rounded-2xl p-6"
+            >
+              <div className="flex flex-col gap-4 lg:flex-row">
                 <img
                   src={item.imgUrl}
-                  className={styles.image}
                   alt={item.name}
+                  className="w-full max-h-40 object-cover rounded-xl shadow-md"
                 />
 
-                <div className={styles.info}>
-                  <h3 className={styles.productName}>{item.name}</h3>
-                  <p className={styles.description}>
+                <div className="flex flex-col gap-2">
+                  <h3 className="font-bold text-gray-800">{item.name}</h3>
+
+                  <p className="text-gray-700">
                     {truncateWords(item.description, 10)}
                   </p>
-                  <p className={styles.price}>Rp {item.price}</p>
+
+                  <p className="text-violet-600 font-semibold">
+                    Rp {item.price}
+                  </p>
                 </div>
               </div>
 
-              <div className={styles.actions}>
-                <button className={styles.editBtn}>Edit</button>
+              <div className="flex flex-col gap-4 pt-4">
+                <button className="border border-violet-600 text-violet-600 rounded-md py-1 hover:bg-violet-600 hover:text-white transition">
+                  Edit
+                </button>
 
                 <button
                   onClick={() => handleDelete(item.id)}
-                  className={styles.deleteBtn}
+                  className="bg-red-600 hover:bg-red-700 transition text-white rounded-md py-1"
                 >
                   Delete
                 </button>
@@ -105,7 +119,9 @@ export default function ProdukSaya() {
   );
 }
 
-function PopUp({user}) {
+/* ================= POPUP ================= */
+
+function PopUp({ user, setAddProduct }) {
   const [form, setForm] = useState({
     name: "",
     desc: "",
@@ -115,15 +131,12 @@ function PopUp({user}) {
     minBuy: "",
     kondisi: "",
   });
-  const [image, setImage] = useState(null);
 
+  const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -140,11 +153,11 @@ function PopUp({user}) {
       await axios.post(
         "http://localhost:5000/adis/nunggalrejo/products",
         formData,
-        { headers: { "Content-Type": "multipart/form-data" } },
+        { headers: { "Content-Type": "multipart/form-data" } }
       );
       alert("Produk berhasil ditambahkan");
+      setAddProduct(false); // Tutup popup setelah sukses
     } catch (err) {
-      console.log(err.response?.data || err.message);
       alert(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
@@ -152,9 +165,15 @@ function PopUp({user}) {
   };
 
   return (
-    <>
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-white border border-gray-400 rounded-2xl w-1/2 h-1/2 p-4 shadow-[0px_4px_10px_rgba(0,0,0,0.5)] flex flex-col gap-4 max-w-2xl mx-auto">
-        <h1 className="text-xl font-semibold mb-4">Tambah Produk</h1>
+    // Tambahkan e.stopPropagation() agar klik di dalam form tidak menutup popup
+    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40">
+      <div
+        className="bg-white rounded-2xl w-full max-w-2xl p-6 shadow-xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h1 className="text-xl font-semibold mb-4 text-center">
+          Tambah Produk
+        </h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
@@ -163,6 +182,7 @@ function PopUp({user}) {
             value={form.name}
             onChange={handleChange}
           />
+
           <Textarea
             label="Deskripsi"
             name="desc"
@@ -219,17 +239,31 @@ function PopUp({user}) {
             />
           </div>
 
-          <button
-            disabled={loading}
-            className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50"
-          >
-            {loading ? "Uploading..." : "Simpan Produk"}
-          </button>
+          {/* ACTION BUTTON */}
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              // ✅ PERBAIKAN 2: Set state menjadi false
+              onClick={() => setAddProduct(false)}
+              className="w-1/2 border border-gray-300 py-2 rounded-lg hover:bg-gray-100 transition"
+            >
+              Cancel
+            </button>
+
+            <button
+              disabled={loading}
+              className="w-1/2 bg-black text-white py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50"
+            >
+              {loading ? "Uploading..." : "Simpan Produk"}
+            </button>
+          </div>
         </form>
       </div>
-    </>
+    </div>
   );
 }
+
+/* ================= INPUT COMPONENT ================= */
 
 function Input({ label, ...props }) {
   return (
