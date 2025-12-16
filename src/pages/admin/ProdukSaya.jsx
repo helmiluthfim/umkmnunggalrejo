@@ -1,44 +1,215 @@
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { db } from "../../firebase";
+import { getDoc, getDocs, addDoc, deleteDoc, query, where, collection } from "firebase/firestore";
+
+import { userStore } from "../../state/state";
+import styles from "./produksaya.module.css"
 
 export default function ProdukSaya() {
+  
+  const user = userStore((state) => state.currentUser)
+  const [product, setProduct] = useState([])
+  const [addProduct, setAddProduct] = useState(false)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const q = query(
+          collection(db, "product"),
+          where("toko", "==", user.toko)
+        )
+        const querySnapshot = await getDocs(q)
+        const data = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setProduct(data)
+      } catch(err) {
+        console.error(err.message)
+      }
+    } 
+    fetchData()
+  })
+
+  const truncateWords = (text, maxWords = 10) => {
+    return text.split(" ").slice(0, maxWords).join(" ") + "…";
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      await deleteDoc(doc(db, "product", id))
+    } catch(err) {
+      console.error(err.message)
+    }
+  }
+
   return (
-    <div className="bg-white w-full rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-      <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">Produk Saya</h2>
-        <Link to="/login" className="w-30 md:w-auto">
-          <p className="bg-[#773FF9] flex justify-center text-white text-sm p-2 px-4 rounded-md hover:bg-[#5a2cbb] duration-300">
+    <>
+    {addProduct ? <PopUp/> : null}
+    <div className={styles.container} style={{ opacity: addProduct ? 0.5 : 1 }} onClick={() => addProduct ? setAddProduct(false) : null}>
+      <div className={styles.header}>
+        <h2 className={styles.title}>Produk Saya</h2>
+
+        <div className={styles.link} onClick={() => setAddProduct(true)}>
+          <p className={styles.newProductBtn}>
             Produk Baru
           </p>
-        </Link>
+        </div>
       </div>
 
-      <div className=" m-4 p-4 overflow-x-auto border rounded-2xl">
-        <div className="flex flex-col items-center justify-center gap-4 lg:flex-row lg:gap-4 lg:justify-start">
-          <img
-            src="https://laz-img-sg.alicdn.com/other/common/5a791054d1364ddc84f299e451ff5080.webp"
-            className="w-40 lg:w-42 h-auto object-cover rounded-lg shadow-md"
-          ></img>
-          <div className="flex flex-col gap-2">
-            <h3 className="font-bold">Nama Produk</h3>
-            <p>
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Minus
-              itaque eum, aliquid voluptate error tenetur fugit eius
-              reprehenderit dolores doloribus? Error quia reiciendis aliquam
-              esse molestias non consectetur voluptates quibusdam!
-            </p>
-            <p className="text-[#773FF9]">Rp. 8.000.000</p>
-          </div>
-        </div>
+      <div className={styles.productContainer}>
+        {product.map((item) => (
+          <div key={item.id} className={styles.card}>
+            <div className={styles.cardContent}>
+              <img
+                src={item.imgUrl}
+                className={styles.image}
+                alt={item.name}
+              />
 
-        <div className="flex flex-col gap-4 pt-4">
-          <button className="border border-[#773FF9] hover:bg-[#773FF9] hover:text-white text-[#773FF9] rounded-md p-[3px] cursor-pointer duration-200">
-            Edit
-          </button>
-          <button className="border border-black rounded-md bg-[#FF0909] hover:bg-[#e70b0b] text-white p-[3px] cursor-pointer duration-200">
-            Delete
-          </button>
-        </div>
+              <div className={styles.info}>
+                <h3 className={styles.productName}>{item.name}</h3>
+                <p className={styles.description}>
+                  {truncateWords(item.description, 10)}
+                </p>
+                <p className={styles.price}>Rp {item.price}</p>
+              </div>
+            </div>
+
+            <div className={styles.actions}>
+              <button className={styles.editBtn}>
+                Edit
+              </button>
+
+              <button
+                onClick={() => handleDelete(item.id)}
+                className={styles.deleteBtn}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
+    </>
   );
+}
+
+function PopUp () {
+  const [form, setForm] = useState({
+    name: "",
+    desc: "",
+    price: "",
+    category: "",
+    nomor: "",
+    minBuy: "",
+    kondisi: ""
+  });
+  const [image, setImage] = useState(null)
+
+  const user = userStore((state) => state.currentUser)
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    Object.keys(form).forEach((key) => {
+      formData.append(key, form[key]);
+    });
+    formData.append("image", image);
+
+    try {
+      setLoading(true);
+      await axios.post(
+        "http://localhost:5000/api/adis/nunggalrejo/products",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+      alert("Produk berhasil ditambahkan");
+    } catch (err) {
+      console.log(err.response?.data || err.message);
+      alert(err.response?.data?.error || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return(
+    <>
+    <div className="max-w-2xl mx-auto p-6 bg-white rounded-xl shadow">
+      <h1 className="text-xl font-semibold mb-4">Tambah Produk</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Input label="Nama Produk" name="name" value={form.name} onChange={handleChange} />
+        <Textarea label="Deskripsi" name="desc" value={form.desc} onChange={handleChange} />
+
+        <div className="grid grid-cols-2 gap-4">
+          <Input label="Harga" name="price" type="number" value={form.price} onChange={handleChange} />
+          <Input label="Kategori" name="category" value={form.category} onChange={handleChange} />
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <Input label="Nomor" name="nomor" value={form.nomor} onChange={handleChange} />
+          <Input label="Min. Beli" name="minBuy" type="number" value={form.minBuy} onChange={handleChange} />
+          <Input label="Kondisi" name="kondisi" value={form.kondisi} onChange={handleChange} />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Gambar</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+            className="w-full border rounded-lg p-2"
+            required
+          />
+        </div>
+
+        <button
+          disabled={loading}
+          className="w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 disabled:opacity-50"
+        >
+          {loading ? "Uploading..." : "Simpan Produk"}
+        </button>
+      </form>
+    </div>
+    </>
+  )
+}
+
+function Input({ label, ...props }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-1">{label}</label>
+      <input
+        {...props}
+        className="w-full border rounded-lg p-2 focus:outline-none focus:ring focus:ring-black/20"
+      />
+    </div>
+  );
+}
+
+function Textarea({ label, ...props }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-1">{label}</label>
+      <textarea
+        {...props}
+        rows={3}
+        className="w-full border rounded-lg p-2 focus:outline-none focus:ring focus:ring-black/20"
+      />
+    </div>
+  )
 }

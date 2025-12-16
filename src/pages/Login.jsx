@@ -49,7 +49,7 @@ function Login() {
 
   useEffect(() => {
     if (user) {
-      navigate("/");
+      navigate("/admin");
     }
   });
 
