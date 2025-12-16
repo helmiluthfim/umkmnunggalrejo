@@ -49,13 +49,34 @@ export default function ProdukSaya() {
     );
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Yakin ingin menghapus produk ini?")) return;
+  // const handleDelete = async (id) => {
+  //   if (!window.confirm("Yakin ingin menghapus produk ini?")) return;
+  //   try {
+  //     await deleteDoc(doc(db, "product", id));
+  //     setProduct((prev) => prev.filter((item) => item.id !== id));
+  //   } catch (err) {
+  //     console.error(err.message);
+  //   }
+  // };
+
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm("Apakah kamu yakin ingin menghapus produk ini?")) return;
+
     try {
-      await deleteDoc(doc(db, "product", id));
-      setProduct((prev) => prev.filter((item) => item.id !== id));
+      const response = await axios.delete(
+        `http://localhost:5000/adis/nunggalrejo/product/${productId}`
+      );
+
+      console.log("Delete success:", response.data);
+      alert("Produk berhasil dihapus!");
+
+      // Jika pakai state untuk list produk, update state setelah delete
+      // setProducts(products.filter(p => p.id !== productId));
     } catch (err) {
-      console.error(err.message);
+      console.error("Gagal menghapus produk:", err.response?.data || err.message);
+      alert(err.message);
+    } finally {
+      window.location.reload()
     }
   };
 
@@ -77,8 +98,9 @@ export default function ProdukSaya() {
     setEditData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const slugify = (text) => text?.toLowerCase().replace(/\s+/g, "-") || "";
   // ✅ FUNGSI SIMPAN PERUBAHAN (UPDATE)
-  const handleSaveEdit = async (id) => {
+  const handleSaveEdit = async (kategori, id) => {
     try {
       // Update ke Firebase
       const docRef = doc(db, "product", id);
@@ -86,6 +108,7 @@ export default function ProdukSaya() {
         name: editData.name,
         description: editData.description,
         price: editData.price,
+        slug: slugify(`/${kategori}/${user.toko}/${editData.name}`, { lower: true, strict: true })
       });
 
       // Update State Lokal (agar UI berubah tanpa refresh)
@@ -96,7 +119,7 @@ export default function ProdukSaya() {
       setEditingId(null); // Keluar mode edit
     } catch (err) {
       console.error("Gagal update:", err.message);
-      alert("Gagal mengupdate produk");
+      alert(err.message);
     }
   };
 
@@ -209,7 +232,7 @@ export default function ProdukSaya() {
                     /* Tombol saat Mode Edit */
                     <>
                       <button
-                        onClick={() => handleSaveEdit(item.id)}
+                        onClick={() => handleSaveEdit(item.kategori, item.id)}
                         className="bg-green-600 text-white px-4 py-1.5 rounded-md hover:bg-green-700 text-sm transition"
                       >
                         Simpan
@@ -231,7 +254,7 @@ export default function ProdukSaya() {
                         Edit
                       </button>
                       <button
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleDeleteProduct(item.id)}
                         className="bg-red-50 text-red-600 border border-red-200 hover:bg-red-600 hover:text-white transition rounded-md px-4 py-1.5 text-sm"
                       >
                         Delete
@@ -303,6 +326,7 @@ function PopUp({ user, setAddProduct }) {
       alert(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
+      window.location.reload()
     }
   };
 
