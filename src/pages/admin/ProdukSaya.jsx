@@ -60,7 +60,8 @@ export default function ProdukSaya() {
   // };
 
   const handleDeleteProduct = async (productId) => {
-    if (!window.confirm("Apakah kamu yakin ingin menghapus produk ini?")) return;
+    if (!window.confirm("Apakah kamu yakin ingin menghapus produk ini?"))
+      return;
 
     try {
       const response = await axios.delete(
@@ -73,10 +74,13 @@ export default function ProdukSaya() {
       // Jika pakai state untuk list produk, update state setelah delete
       // setProducts(products.filter(p => p.id !== productId));
     } catch (err) {
-      console.error("Gagal menghapus produk:", err.response?.data || err.message);
+      console.error(
+        "Gagal menghapus produk:",
+        err.response?.data || err.message
+      );
       alert(err.message);
     } finally {
-      window.location.reload()
+      window.location.reload();
     }
   };
 
@@ -108,7 +112,10 @@ export default function ProdukSaya() {
         name: editData.name,
         description: editData.description,
         price: editData.price,
-        slug: slugify(`/${kategori}/${user.toko}/${editData.name}`, { lower: true, strict: true })
+        slug: slugify(`/${kategori}/${user.toko}/${editData.name}`, {
+          lower: true,
+          strict: true,
+        }),
       });
 
       // Update State Lokal (agar UI berubah tanpa refresh)
@@ -326,7 +333,7 @@ function PopUp({ user, setAddProduct }) {
       alert(err.response?.data?.error || err.message);
     } finally {
       setLoading(false);
-      window.location.reload()
+      window.location.reload();
     }
   };
 
@@ -366,7 +373,7 @@ function PopUp({ user, setAddProduct }) {
             <div>
               <label className="block text-sm font-medium mb-1">Kategori</label>
               <div className="relative">
-               <select
+                <select
                   name="kategori"
                   value={form.kategori}
                   onChange={(e) =>
