@@ -11,6 +11,17 @@ export default function SignUp() {
   const [sandi, setSandi] = useState("");
   const [toko, setToko] = useState("");
 
+  function generateUserId(length = 12) {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  const userId = generateUserId(16); 
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -21,6 +32,7 @@ export default function SignUp() {
         username,
         password: sandi,
         toko,
+        userId
       });
       navigate("/login");
     } catch (err) {

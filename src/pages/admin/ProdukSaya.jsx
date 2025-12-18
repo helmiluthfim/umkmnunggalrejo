@@ -26,7 +26,7 @@ export default function ProdukSaya() {
       try {
         const q = query(
           collection(db, "product"),
-          where("toko", "==", user.toko)
+          where("userId", "==", user.userId)
         );
         const snapshot = await getDocs(q);
         const data = snapshot.docs.map((doc) => ({
@@ -49,23 +49,13 @@ export default function ProdukSaya() {
     );
   };
 
-  // const handleDelete = async (id) => {
-  //   if (!window.confirm("Yakin ingin menghapus produk ini?")) return;
-  //   try {
-  //     await deleteDoc(doc(db, "product", id));
-  //     setProduct((prev) => prev.filter((item) => item.id !== id));
-  //   } catch (err) {
-  //     console.error(err.message);
-  //   }
-  // };
-
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm("Apakah kamu yakin ingin menghapus produk ini?"))
       return;
 
     try {
       const response = await axios.delete(
-        `http://localhost:5000/adis/nunggalrejo/product/${productId}`
+        `https://www.adismainbackend.xyz/adis/nunggalrejo/product/${productId}`
       );
 
       console.log("Delete success:", response.data);
@@ -302,6 +292,7 @@ function PopUp({ user, setAddProduct }) {
     minBuy: 0,
     kondisi: "",
     toko: user.toko,
+    userId: user.userId
   });
 
   const [image, setImage] = useState(null);
@@ -323,7 +314,7 @@ function PopUp({ user, setAddProduct }) {
     try {
       setLoading(true);
       await axios.post(
-        "http://localhost:5000/adis/nunggalrejo/product",
+        "https://www.adismainbackend.xyz/adis/nunggalrejo/product",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
