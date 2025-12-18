@@ -26,7 +26,7 @@ export default function ProdukSaya() {
       try {
         const q = query(
           collection(db, "product"),
-          where("toko", "==", user.toko)
+          where("userId", "==", user.userId)
         );
         const snapshot = await getDocs(q);
         const data = snapshot.docs.map((doc) => ({
@@ -48,16 +48,6 @@ export default function ProdukSaya() {
       (text.split(" ").length > maxWords ? "…" : "")
     );
   };
-
-  // const handleDelete = async (id) => {
-  //   if (!window.confirm("Yakin ingin menghapus produk ini?")) return;
-  //   try {
-  //     await deleteDoc(doc(db, "product", id));
-  //     setProduct((prev) => prev.filter((item) => item.id !== id));
-  //   } catch (err) {
-  //     console.error(err.message);
-  //   }
-  // };
 
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm("Apakah kamu yakin ingin menghapus produk ini?"))
@@ -302,6 +292,7 @@ function PopUp({ user, setAddProduct }) {
     minBuy: 0,
     kondisi: "",
     toko: user.toko,
+    userId: user.userId
   });
 
   const [image, setImage] = useState(null);
