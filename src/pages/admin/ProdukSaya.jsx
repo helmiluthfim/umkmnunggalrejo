@@ -55,7 +55,7 @@ export default function ProdukSaya() {
 
     try {
       const response = await axios.delete(
-        `http://localhost:5000/adis/nunggalrejo/product/${productId}`
+        `https://www.adismainbackend.xyz/adis/nunggalrejo/product/${productId}`
       );
 
       console.log("Delete success:", response.data);
@@ -314,7 +314,7 @@ function PopUp({ user, setAddProduct }) {
     try {
       setLoading(true);
       await axios.post(
-        "http://localhost:5000/adis/nunggalrejo/product",
+        "https://www.adismainbackend.xyz/adis/nunggalrejo/product",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

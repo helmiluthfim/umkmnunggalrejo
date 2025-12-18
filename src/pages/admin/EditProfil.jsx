@@ -55,7 +55,7 @@ export default function EditProfil() {
     try {
       setLoading(true);
       await axios.post(
-        "http://localhost:5000/adis/nunggalrejo/update",
+        "https://www.adismainbackend.xyz/adis/nunggalrejo/update",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
