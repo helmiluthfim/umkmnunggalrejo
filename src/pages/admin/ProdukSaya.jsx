@@ -41,13 +41,19 @@ export default function ProdukSaya() {
     fetchData();
   }, [user.toko]);
 
-  const truncateWords = (text, maxWords = 10) => {
+  // const truncateWords = (text, maxWords = 10) => {
+  //   if (!text) return "";
+  //   return (
+  //     text.split(" ").slice(0, maxWords).join(" ") +
+  //     (text.split(" ").length > maxWords ? "…" : "")
+  //   );
+  // };
+
+  const truncateWords = (text, maxChars = 50) => {
     if (!text) return "";
-    return (
-      text.split(" ").slice(0, maxWords).join(" ") +
-      (text.split(" ").length > maxWords ? "…" : "")
-    );
+    return text.length <= maxChars ? text : text.slice(0, maxChars) + "...";
   };
+
 
   const handleDeleteProduct = async (productId) => {
     if (!window.confirm("Apakah kamu yakin ingin menghapus produk ini?"))
@@ -213,7 +219,7 @@ export default function ProdukSaya() {
                           {item.name}
                         </h3>
                         <p className="text-gray-600 text-sm">
-                          {truncateWords(item.description, 15)}
+                          {truncateWords(item.description, 50)}
                         </p>
                         <p className="text-violet-600 font-bold text-lg">
                           Rp {parseInt(item.price).toLocaleString("id-ID")}

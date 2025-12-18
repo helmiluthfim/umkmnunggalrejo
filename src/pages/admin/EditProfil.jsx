@@ -6,18 +6,15 @@ import { userStore } from "../../state/state";
 
 export default function EditProfil() {
   
-  function generateUserId(length = 12) {
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < length; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result;
-  }
-
-  const userId = generateUserId(16); 
-  
   const user = userStore((state) => state.currentUser)
+  const setUser = userStore((state) => state.setCurrentUser)
+  const updateToko = (newToko) => {
+    if(!user) return
+    const updateUser = {
+      ...user,
+      toko: newToko
+    }
+  }
 
   const [data, setData] = useState({
     toko: "",
@@ -42,6 +39,7 @@ export default function EditProfil() {
   }
 
   const handleSubmit = async (e) => {
+    updateToko(data.toko)
     e.preventDefault();
 
     const formData = new FormData();

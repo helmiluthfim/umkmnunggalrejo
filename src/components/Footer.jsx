@@ -1,7 +1,19 @@
 import { IoLogoInstagram, IoLogoWhatsapp } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { userStore } from "../state/state";
 
 function Footer() {
+
+  const navigate = useNavigate()
+
+  const user = userStore((state) => state.currentUser)
+  const logout = userStore((state) => state.logout)
+
+  const handleLogout = () => {
+    logout()
+    navigate("/")
+  }
+  
   return (
     <>
       <div className="flex flex-col md:flex-row justify-between p-4 pb-6 px-4 md:px-8 lg:px-20 items-start gap-8 md:gap-4">
@@ -39,11 +51,19 @@ function Footer() {
             <p className="text-sm md:text-base">Home</p>
           </Link>
           <p className="text-sm md:text-base">Tentang Kami</p>
-          <Link to="/login" className="w-30 md:w-auto">
-            <p className="bg-[#773FF9] flex justify-center text-white text-sm p-2 px-4 rounded-md hover:bg-[#5a2cbb] duration-300">
-              Masuk
-            </p>
-          </Link>
+          {
+            !user ? 
+              <Link to="/login" className="w-30 md:w-auto">
+                <p className="bg-[#773FF9] flex justify-center text-white text-sm p-2 px-4 rounded-md hover:bg-[#5a2cbb] duration-300">
+                  Masuk
+                </p>
+              </Link>
+            : <div onClick={handleLogout} className="w-30 md:w-auto">
+                <p className="bg-[#FF0909] flex justify-center text-white text-sm p-2 px-4 rounded-md hover:bg-[#5a2cbb] duration-300">
+                  Keluar
+                </p>
+              </div>
+          }
         </div>
       </div>
       <div className="border-t border-gray-500 flex justify-center p-4 text-sm">
