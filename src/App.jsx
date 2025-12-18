@@ -11,6 +11,7 @@ import DashboardAdmin from "./pages/admin/DashboardAdmin";
 import PublicLayout from "./layouts/PublicLayout";
 import AdminLayout from "./layouts/AdminLayout";
 import EditProfil from "./pages/admin/EditProfil";
+import ChangePassword from "./pages/admin/ChangePassword";
 
 function App() {
   return (
@@ -31,7 +32,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<DashboardAdmin />} />
           <Route path="edit-profile" element={<EditProfil />} />
-          <Route path="change-password" element={<EditProfil />} />
+          <Route path="change-password" element={<ChangePassword />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
